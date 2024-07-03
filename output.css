@@ -640,6 +640,10 @@ video {
   height: 50%;
 }
 
+.h-2\/3 {
+  height: 66.666667%;
+}
+
 .w-24 {
   width: 6rem;
 }
