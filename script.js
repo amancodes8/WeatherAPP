@@ -6,22 +6,33 @@ const conditionElement = document.getElementById('condition');
 const rain = document.getElementById('rain');
 const hideOnClick = document.getElementById('hideOnClick');
 const WeatherCard = document.getElementById('WeatherCard');
-const errorElement = document.createElement('p'); // Create a new paragraph element for error messages
-WeatherCard.appendChild(errorElement); // Append it to the WeatherCard
+const errorElement = document.createElement('p');
+const time = document.getElementById('time');
+const cloud = document.getElementById('cloud');
+const max_min = document.getElementById('max_min');
+WeatherCard.appendChild(errorElement);
 
-errorElement.style.font = "larger";
+errorElement.style.fontSize = "larger";
+
 document.getElementById('btn').addEventListener('click', function () {
-    const cityName = cityInput.value.trim();
-    const url = `https://weatherapi-com.p.rapidapi.com/current.json?q=${cityName}`;
-    const options = {
-        method: 'GET',
-        headers: {
-            'x-rapidapi-key': 'b5d8378b6amsh733816c1e61700bp1bccc2jsn311ea19123c7', // Ideally, replace this with an environment variable
-            'x-rapidapi-host': 'weatherapi-com.p.rapidapi.com'
-        }
-    };
+    let cityName = cityInput.value.trim();
+
+    if (cityName.toLowerCase() === 'delhi') {
+        cityName = 'New Delhi';
+    } else if (cityName.toLowerCase() === 'gorakhpur') {
+        cityName = 'Gorakhpur, Uttar Pradesh';
+    }
 
     if (cityName) {
+        const url = `https://weatherapi-com.p.rapidapi.com/current.json?q=${cityName}`;
+        const options = {
+            method: 'GET',
+            headers: {
+                'x-rapidapi-key': 'b5d8378b6amsh733816c1e61700bp1bccc2jsn311ea19123c7',
+                'x-rapidapi-host': 'weatherapi-com.p.rapidapi.com'
+            }
+        };
+
         async function fetchWeather() {
             try {
                 const response = await fetch(url, options);
@@ -29,19 +40,15 @@ document.getElementById('btn').addEventListener('click', function () {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
                 const result = await response.json();
-                console.log(result);
+                // console.log(result);
 
-                // Update the weather information in the UI
-                if (cityName.toLowerCase() === "delhi") {
-                    result.location.region = "India";
-                }
                 locationElement.textContent = `${result.location.name}, ${result.location.region}, ${result.location.country}`;
+                time.textContent = `Local Time: ${result.location.localtime}, ${result.current.is_day ? 'Day' : 'Night'}`;
                 temperatureElement.textContent = `Temperature: ${result.current.temp_c} °C Feels like: ${result.current.feelslike_c}`;
                 conditionElement.textContent = `Condition: ${result.current.condition.text}`;
-                rain.textContent = `Humidity: ${result.current.humidity}
-                                    Cloud: ${result.current.cloud},
-                                    Wind: ${result.current.wind_kph}, ${result.current.wind_dir}
-                                    Heat Index: ${result.current.heatindex_c}`;
+                cloud.textContent = `Cloud: ${result.current.cloud}%, Wind Speed: ${result.current.wind_kph} Kph (${result.current.wind_dir})`;
+                max_min.textContent = `Humidity: ${result.current.humidity}%`;
+                rain.textContent = `Possible Rain: ${result.current.precip_mm} mm`;
                 icon.src = result.current.condition.icon;
                 icon.classList.remove('hidden');
                 errorElement.textContent = ''; // Clear any previous error messages
